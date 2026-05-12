@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, fonts, spacing } from '@/theme';
@@ -224,7 +225,11 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.topBar}>
-        <Text style={styles.logo}><Text style={styles.logoGold}>Funding</Text>Trace</Text>
+        <Image 
+            source={require('../../assets/fundingtrace_logo.png')}
+            style={styles.logoImage}
+            resizeMode="contain"
+        />
         <View style={styles.topBarRight}>
           <TouchableOpacity style={styles.topBarIcon}>
             <Ionicons name="search-outline" size={22} color={colors.muted} />
@@ -259,8 +264,10 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
   scrollContent: { paddingBottom: 20 },
   topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.lg, paddingVertical: spacing.md, borderBottomWidth: 0.5, borderBottomColor: colors.border, backgroundColor: colors.bg },
-  logo: { fontFamily: fonts.interSemiBold, fontSize: 16, color: colors.cream },
-  logoGold: { color: colors.gold },
+  logoImage: { 
+    height: 22, 
+    width: 140,
+  },
   topBarRight: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   topBarIcon: { width: 30, height: 30, alignItems: 'center', justifyContent: 'center' },
   badge: { position: 'absolute', top: 2, right: 2, width: 7, height: 7, borderRadius: 3.5, backgroundColor: colors.gold, borderWidth: 1.5, borderColor: colors.bg },
