@@ -32,8 +32,14 @@
     },
     "plugins": [
       "expo-secure-store",
-      ["expo-font", { "fonts": [] }],
-      "expo-router"
+      [
+        "expo-font",
+        {
+          "fonts": []
+        }
+      ],
+      "expo-router",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
