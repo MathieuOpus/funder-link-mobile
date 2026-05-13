@@ -1,98 +1,82 @@
-import { Tabs } from 'expo-router';
-import { View, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { colors, fonts } from '@/theme';
+import { useEffect } from 'react';
+import { Stack, useRouter, useSegments } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import {
+  useFonts,
+  PlayfairDisplay_400Regular_Italic,
+  PlayfairDisplay_700Bold,
+} from '@expo-google-fonts/playfair-display';
+import {
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+} from '@expo-google-fonts/inter';
+import {
+  JetBrainsMono_400Regular,
+  JetBrainsMono_500Medium,
+} from '@expo-google-fonts/jetbrains-mono';
+import * as SplashScreen from 'expo-splash-screen';
+import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { colors } from '@/theme';
 
-const iconMap: Record<string, { active: keyof typeof Ionicons.glyphMap; inactive: keyof typeof Ionicons.glyphMap }> = {
-  'home': { active: 'home', inactive: 'home-outline' },
-  'chart-bar': { active: 'bar-chart', inactive: 'bar-chart-outline' },
-  'git-branch': { active: 'git-branch', inactive: 'git-branch-outline' },
-  'search': { active: 'search', inactive: 'search-outline' },
-  'user': { active: 'person', inactive: 'person-outline' },
-};
+SplashScreen.preventAutoHideAsync();
 
-function TabBarIcon({ name, focused }: { name: string; focused: boolean }) {
-  const icons = iconMap[name];
+const queryClient = new QueryClient();
+
+function AuthGate() {
+  const { user, loading } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (loading) return;
+    const inAuthScreen = segments[0] === 'auth';
+    if (!user && !inAuthScreen) {
+      router.replace('/auth');
+    } else if (user && inAuthScreen) {
+      router.replace('/(tabs)');
+    }
+  }, [user, loading, segments]);
+
+  return null;
+}
+
+function RootLayoutInner() {
+  const [fontsLoaded] = useFonts({
+    PlayfairDisplay_700Bold,
+    PlayfairDisplay_400Regular_Italic,
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    JetBrainsMono_400Regular,
+    JetBrainsMono_500Medium,
+  });
+
+  useEffect(() => {
+    if (fontsLoaded) SplashScreen.hideAsync();
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) return null;
+
   return (
-    <View style={styles.tabIconContainer}>
-      <Ionicons
-        name={focused ? icons.active : icons.inactive}
-        size={22}
-        color={focused ? colors.gold : colors.muted2}
-      />
-      {focused && <View style={styles.activeDot} />}
-    </View>
+    <>
+      <StatusBar style="light" backgroundColor={colors.bg} />
+      <AuthGate />
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="auth" />
+      </Stack>
+    </>
   );
 }
 
-export default function TabLayout() {
+export default function RootLayout() {
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarStyle: styles.tabBar,
-        tabBarActiveTintColor: colors.gold,
-        tabBarInactiveTintColor: colors.muted2,
-        tabBarShowLabel: false,
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ focused }) => <TabBarIcon name="home" focused={focused} />,
-        }}
-      />
-      <Tabs.Screen
-        name="score"
-        options={{
-          title: 'Score',
-          tabBarIcon: ({ focused }) => <TabBarIcon name="chart-bar" focused={focused} />,
-        }}
-      />
-      <Tabs.Screen
-        name="pipeline"
-        options={{
-          title: 'Pipeline',
-          tabBarIcon: ({ focused }) => <TabBarIcon name="git-branch" focused={focused} />,
-        }}
-      />
-      <Tabs.Screen
-        name="discover"
-        options={{
-          title: 'Discover',
-          tabBarIcon: ({ focused }) => <TabBarIcon name="search" focused={focused} />,
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: 'Profile',
-          tabBarIcon: ({ focused }) => <TabBarIcon name="user" focused={focused} />,
-        }}
-      />
-    </Tabs>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <RootLayoutInner />
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  tabBar: {
-    backgroundColor: colors.bg,
-    borderTopColor: colors.border,
-    borderTopWidth: 0.5,
-    height: 60,
-    paddingBottom: 8,
-    paddingTop: 8,
-  },
-  tabIconContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 3,
-  },
-  activeDot: {
-    width: 3,
-    height: 3,
-    borderRadius: 1.5,
-    backgroundColor: colors.gold,
-  },
-});

@@ -36,7 +36,9 @@ export default function AuthScreen() {
     setError(null);
 
     try {
-      const redirectTo = makeRedirectUri({ scheme: 'fundingtrace' });
+      const redirectTo = __DEV__
+        ? 'exp://192.168.2.14:8081'
+        : makeRedirectUri({ scheme: 'fundingtrace' });
 
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
