@@ -246,7 +246,11 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) fetchAll();
+    if (user) {
+      fetchAll();
+    } else {
+    setLoading(false);
+    }
   }, [user]);
 
   const fetchAll = async () => {
